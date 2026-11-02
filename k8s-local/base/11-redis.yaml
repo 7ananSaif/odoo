@@ -1,0 +1,93 @@
+# =============================================================================
+# 11-redis.yaml — LLM cache + optional session store.
+#
+# Transcribed from docker-compose.yml `redis`:
+#   image    redis:7-alpine
+#   command  redis-server --appendonly yes   (AOF: the cache survives restarts)
+#   volume   redis-data -> a PVC
+#   health   redis-cli ping
+#
+# No password, exactly like compose: this Redis is only reachable from inside
+# the cluster (ClusterIP), and its contents are a disposable LLM cache.
+# Do not reuse this manifest anywhere the port is reachable.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: cache
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: cache
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/component: cache
+    spec:
+      securityContext:
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          args: ["--appendonly", "yes"]
+          ports:
+            - name: redis
+              containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 5
+            initialDelaySeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

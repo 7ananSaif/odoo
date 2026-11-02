@@ -55,3 +55,19 @@ data:
   # Behind the kubectl port-forward / NodePort: trust X-Forwarded-* the way
   # docker-compose.yml sets PROXY_MODE=True.
   ODOO_PROXY_MODE: "True"
+  # --- AI pipeline wiring (added with the invoice-ai/worker/rabbitmq/redis
+  #     manifests; values mirror docker-compose.yml `invoice-ai` and `worker`) ---
+  # Service DNS names, not localhost: inside the cluster every hop goes
+  # through a Service. These are the same names the compose network used.
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  REDIS_URL: redis://redis:6379/0
+  # Odoo reads INVOICE_AI_LLM_SERVICE_URL BEFORE ir.config_parameter
+  # (models/llm_service.py::_service_url), so setting it here configures the
+  # whole stack in one place and needs no Settings-UI step after deploy.
+  INVOICE_AI_LLM_SERVICE_URL: http://invoice-ai:8100
+  # Must equal the service's INVOICE_AI_JWT_AUDIENCE, else every token dies
+  # with 401 (see the note in 01-secret.yaml).
+  INVOICE_AI_JWT_AUDIENCE: invoice-ai
+  # 168 h = 7 days, the same TTL compose sets.
+  LLM_CACHE_TTL_HOURS: "168"

@@ -1,0 +1,25 @@
+# ============================================================================
+# SaaS Manager — line-ending policy
+# ============================================================================
+
+# The Odoo core patch MUST stay byte-exact: any CRLF/LF conversion on checkout
+# makes `git apply` fail against the Odoo tree.
+*.patch -text
+
+# PowerShell scripts are consumed by Windows tooling and keep CRLF.
+*.ps1 text eol=crlf
+
+# Shell scripts, systemd units, nginx config and CI workflows are consumed by
+# Linux — force LF so a Windows checkout can never break them (a stray CR in a
+# systemd ExecStart path or a shell script is fatal).
+*.sh      text eol=lf
+*.service text eol=lf
+*.conf    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary

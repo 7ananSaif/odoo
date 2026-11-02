@@ -183,6 +183,48 @@ spec:
                 configMapKeyRef:
                   name: odoo-config
                   key: ODOO_PROXY_MODE
+            # --- AI pipeline (in-cluster Services, not localhost) ----------
+            # Read by models/llm_service.py::_service_url AFTER the DB
+            # parameter, so no Settings-UI step is needed after deploy.
+            - name: INVOICE_AI_LLM_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: INVOICE_AI_LLM_SERVICE_URL
+            # Must equal the service's INVOICE_AI_JWT_SECRET, or every minted
+            # token is rejected with 401.
+            - name: INVOICE_AI_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-ai
+                  key: INVOICE_AI_JWT_SECRET
+            # The transactional outbox publishes extract.request through these.
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: RABBITMQ_PORT
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_PASSWORD
+            # Session cache used by the session_redis addon when installed.
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: REDIS_URL
           resources:
             # Traced from the chart's odoo.resources (which traces to
             # docker-compose.yml deploy.resources: reservations 512M, limits 2G).

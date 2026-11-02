@@ -83,8 +83,10 @@ used — see [the note at the end](#aws-options--not-in-use).
 
 ### `k8s-local` — the free local cluster (Docker Desktop or kind)
 
-Odoo + Postgres on your machine, with a real PersistentVolume so the database
-survives restarts. No cloud account, no bill.
+The **whole application** — Odoo, Postgres+pgvector, RabbitMQ, Redis, the
+`invoice-ai` FastAPI service and its extraction worker — on your machine, with
+real PersistentVolumes so the database survives restarts. No cloud account, no
+bill. Only the multi-tenant `saas-manager` control plane is left out.
 
 ```bash
 # 0. Prerequisites: Docker Desktop with Kubernetes enabled, kubectl.
@@ -103,11 +105,22 @@ make k8s-deploy             # bash ../deploy/local-k8s.sh deploy
 #    either:         kubectl port-forward -n odoo-local svc/odoo 8069:8069
 
 # 4. Day-to-day
-make logs       # follow Odoo
-make db-shell   # psql
-make db-backup  # pg_dump -Fc into ./backups
-make k8s-down   # stop, KEEP data
+make logs         # follow Odoo
+make logs-ai      # follow invoice-ai (OCR → Claude → RAG)
+make logs-worker  # follow the AMQP extraction worker
+make logs-queue   # follow RabbitMQ
+make db-shell     # psql
+make db-backup    # pg_dump -Fc into ./backups
+make k8s-down     # stop, KEEP data
 make k8s-destroy  # delete namespace + volumes (asks 'yes')
+```
+
+Extraction needs a real Claude key: `ANTHROPIC_API_KEY` in
+`k8s-local/base/01-secret.yaml` is an empty placeholder, so the stack runs and
+the worker consumes, but each extraction returns 503 and is queued for retry
+until you set one (instructions in `k8s-local/README.md` § 0).
+
+```bash
 ```
 
 On kind, pass the cluster on both commands — `make k8s-up CLUSTER=kind` then
