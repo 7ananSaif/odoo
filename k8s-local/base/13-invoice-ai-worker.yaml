@@ -1,0 +1,90 @@
+# =============================================================================
+# 13-invoice-ai-worker.yaml — the AMQP consumer that calls Claude.
+#
+# Transcribed from docker-compose.yml `worker`:
+#   build     ./invoice-ai (same image as 12-invoice-ai.yaml)
+#   command   python -m app.consumer
+#   env       RABBITMQ_HOST/PORT/USER/PASS, INVOICE_AI_JWT_SECRET,
+#             INVOICE_AI_ANTHROPIC_API_KEY, REDIS_URL, LLM_CACHE_TTL_HOURS
+#   resources limits 768M / reservations 256M
+#
+# No Service: it consumes from RabbitMQ and publishes the signed result back
+# through the broker; nothing calls it over HTTP.
+#
+# No HTTP probe is possible (there is no HTTP server), so liveness is the
+# process itself: if app.consumer exits, the container exits and the kubelet
+# restarts it — which is the honest signal for a consumer.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoice-ai-worker
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: invoice-ai-worker
+    app.kubernetes.io/component: ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: invoice-ai-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: invoice-ai-worker
+        app.kubernetes.io/component: ai
+    spec:
+      containers:
+        - name: worker
+          image: invoice-ai:local
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "app.consumer"]
+          env:
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: RABBITMQ_PORT
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_PASSWORD
+            - name: INVOICE_AI_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-ai
+                  key: INVOICE_AI_JWT_SECRET
+            - name: INVOICE_AI_ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-ai
+                  key: ANTHROPIC_API_KEY
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: REDIS_URL
+            - name: LLM_CACHE_TTL_HOURS
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: LLM_CACHE_TTL_HOURS
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 768Mi

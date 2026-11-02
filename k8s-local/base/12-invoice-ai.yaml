@@ -1,0 +1,109 @@
+# =============================================================================
+# 12-invoice-ai.yaml — the FastAPI extraction service (OCR → Claude → RAG).
+#
+# Transcribed from docker-compose.yml `invoice-ai`:
+#   build        ./invoice-ai            -> image invoice-ai:local (built by k8s-up)
+#   port         8100  (health: GET /healthz)
+#   env          INVOICE_AI_JWT_SECRET, INVOICE_AI_JWT_AUDIENCE=invoice-ai,
+#                INVOICE_AI_ANTHROPIC_API_KEY, REDIS_URL, LLM_CACHE_TTL_HOURS=168
+#   resources    limits 768M / reservations 256M
+#
+# Odoo reaches it at http://invoice-ai:8100 — the env var
+# INVOICE_AI_LLM_SERVICE_URL on the Odoo Deployment (see 07-odoo-deployment.yaml),
+# which the addon reads before falling back to ir.config_parameter.
+#
+# ANTHROPIC_API_KEY is a REQUIRED placeholder: without a real key the service
+# still starts and /healthz answers, but every extraction returns 503 and the
+# bill is queued for retry — which is the correct, visible failure.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: invoice-ai
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: ai
+spec:
+  selector:
+    app.kubernetes.io/name: invoice-ai
+  ports:
+    - name: http
+      port: 8100
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoice-ai
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: invoice-ai
+    app.kubernetes.io/component: ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: invoice-ai
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: invoice-ai
+        app.kubernetes.io/component: ai
+    spec:
+      containers:
+        - name: invoice-ai
+          image: invoice-ai:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8100
+          env:
+            - name: INVOICE_AI_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-ai
+                  key: INVOICE_AI_JWT_SECRET
+            - name: INVOICE_AI_JWT_AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: INVOICE_AI_JWT_AUDIENCE
+            - name: INVOICE_AI_ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-ai
+                  key: ANTHROPIC_API_KEY
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: REDIS_URL
+            - name: LLM_CACHE_TTL_HOURS
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: LLM_CACHE_TTL_HOURS
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+            initialDelaySeconds: 30
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              memory: 768Mi

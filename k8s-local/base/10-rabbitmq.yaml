@@ -1,0 +1,120 @@
+# =============================================================================
+# 10-rabbitmq.yaml — the job broker the AI pipeline runs on.
+#
+# Transcribed from docker-compose.yml `rabbitmq`:
+#   image   rabbitmq:3.13-management   (same tag, so the management UI exists)
+#   user    RABBITMQ_DEFAULT_USER / _PASS  -> here from the Secret
+#   volume  rabbitmq-data -> a PVC, so queued jobs and the definitions survive
+#           a pod restart the same way the compose named volume did
+#   health  rabbitmq-diagnostics -q ping (the same probe compose used)
+#
+# A StatefulSet rather than a Deployment: one broker with stable identity and
+# its own claim, which is exactly what a single-node queue needs. RabbitMQ
+# clustering is deliberately NOT configured - one broker, no quorum, because
+# this is a laptop.
+#
+# Credentials are placeholders, like the database's (see 01-secret.yaml).
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: queue
+spec:
+  clusterIP: None # headless: stable network identity for the STS pod
+  selector:
+    app.kubernetes.io/name: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: amqp
+    - name: management
+      port: 15672
+      targetPort: management
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: queue
+spec:
+  serviceName: rabbitmq
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: rabbitmq
+        app.kubernetes.io/component: queue
+    spec:
+      securityContext:
+        # The rabbitmq image runs as uid/gid 999. Without fsGroup the freshly
+        # provisioned volume arrives root:root and the broker cannot write
+        # /var/lib/rabbitmq — the pod then crash-loops on "permission denied".
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.13-management
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-queue
+                  key: RABBITMQ_PASSWORD
+          ports:
+            - name: amqp
+              containerPort: 5672
+            - name: management
+              containerPort: 15672
+          # `rabbitmq-diagnostics -q ping` answers before the broker can accept
+          # AMQP connections; the publisher/consumer tolerate that (they retry),
+          # and readiness on the management port is the honest "queues work" signal.
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+            initialDelaySeconds: 10
+          livenessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+            initialDelaySeconds: 60
+          resources:
+            # compose: limits 512M / reservations 128M
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+  volumeClaimTemplates:
+    - metadata:
+        name: rabbitmq-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

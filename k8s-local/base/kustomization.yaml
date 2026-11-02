@@ -28,6 +28,13 @@ resources:
   - 07-odoo-deployment.yaml
   - 08-odoo-service.yaml
   - 09-odoo-init-job.yaml
+  # --- AI pipeline: queue, cache, service, worker -------------------------
+  # Without these Odoo runs but "upload → extract" cannot: the outbox has
+  # nowhere to publish and there is no service to call.
+  - 10-rabbitmq.yaml
+  - 11-redis.yaml
+  - 12-invoice-ai.yaml
+  - 13-invoice-ai-worker.yaml
 
 # Common labels on every object, so `kubectl get all,pvc -n odoo-local -l
 # app.kubernetes.io/part-of=odoo-invoice-agent` is a complete inventory of this

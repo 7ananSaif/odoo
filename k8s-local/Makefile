@@ -57,6 +57,8 @@ NAMESPACE      ?= odoo-local
 # IMAGE adds custom_addons on top (see Dockerfile.app) and is what the cluster runs.
 BASE_IMAGE     ?= odoo-invoice-agent:local
 IMAGE          ?= odoo-local:19
+# Shared by the invoice-ai Deployment and its worker (compose builds ./invoice-ai once).
+AI_IMAGE       ?= invoice-ai:local
 
 # --- tooling -----------------------------------------------------------------
 KUBECTL        ?= kubectl
@@ -83,7 +85,10 @@ help: ## Show this help
 > @echo "  make db-shell      psql inside the Postgres pod"
 > @echo "  make db-backup     pg_dump -> $(BACKUP_DIR)/<timestamp>.dump"
 > @echo "  make logs          follow Odoo logs"
-> @echo "  make image         build $(BASE_IMAGE) then $(IMAGE)"
+> @echo "  make logs-ai       follow invoice-ai (FastAPI) logs"
+> @echo "  make logs-worker   follow the AMQP extraction worker logs"
+> @echo "  make logs-queue    follow RabbitMQ logs"
+> @echo "  make image         build $(BASE_IMAGE) + $(IMAGE) + invoice-ai:local"
 > @echo ""
 > @echo "  Variables: CLUSTER=$(CLUSTER) NAMESPACE=$(NAMESPACE) IMAGE=$(IMAGE)"
 > @echo "  Without make: bash $(DEPLOY_SCRIPT) <command>   (same commands)"
@@ -97,7 +102,9 @@ image: ## Build the app image (repo Dockerfile, then the addons layer)
 > $(DOCKER) build -t $(BASE_IMAGE) ..
 > @echo ">> building $(IMAGE) from Dockerfile.app (adds custom_addons)"
 > $(DOCKER) build -f Dockerfile.app -t $(IMAGE) ..
-> @echo ">> done: $(IMAGE)"
+> @echo ">> building $(AI_IMAGE) from ../invoice-ai (FastAPI service + worker)"
+> $(DOCKER) build -t $(AI_IMAGE) ../invoice-ai
+> @echo ">> done: $(IMAGE) and $(AI_IMAGE)"
 
 # -----------------------------------------------------------------------------
 # Cluster + deploy
@@ -105,7 +112,8 @@ image: ## Build the app image (repo Dockerfile, then the addons layer)
 .PHONY: k8s-up
 k8s-up: ## Create/verify the cluster, build+load the image, apply base manifests
 > CLUSTER=$(CLUSTER) CLUSTER_NAME=$(CLUSTER_NAME) NAMESPACE=$(NAMESPACE) \
->   IMAGE=$(IMAGE) BASE_IMAGE=$(BASE_IMAGE) KUBECTL=$(KUBECTL) DOCKER=$(DOCKER) \
+>   IMAGE=$(IMAGE) BASE_IMAGE=$(BASE_IMAGE) AI_IMAGE=$(AI_IMAGE) \
+>   KUBECTL=$(KUBECTL) DOCKER=$(DOCKER) \
 >   KIND=$(KIND) bash $(DEPLOY_SCRIPT) up
 
 .PHONY: k8s-deploy
@@ -127,7 +135,11 @@ k8s-status: ## Show pods, services, PVCs and the init job
 .PHONY: k8s-down
 k8s-down: ## Stop the workloads, KEEPING the database + filestore volumes
 > $(KUBECTL) scale deployment/odoo -n $(NAMESPACE) --replicas=0
+> $(KUBECTL) scale deployment/invoice-ai -n $(NAMESPACE) --replicas=0
+> $(KUBECTL) scale deployment/invoice-ai-worker -n $(NAMESPACE) --replicas=0
 > $(KUBECTL) scale statefulset/postgres -n $(NAMESPACE) --replicas=0
+> $(KUBECTL) scale statefulset/rabbitmq -n $(NAMESPACE) --replicas=0
+> $(KUBECTL) scale statefulset/redis -n $(NAMESPACE) --replicas=0
 > @echo ""
 > @echo "Workloads stopped. The volumes were NOT touched:"
 > $(KUBECTL) get pvc -n $(NAMESPACE)
@@ -178,6 +190,18 @@ db-backup: ## pg_dump the odoo database into ./backups (custom format, verified)
 .PHONY: logs
 logs: ## Follow the Odoo container logs
 > $(KUBECTL) logs -n $(NAMESPACE) deployment/odoo -f --tail=200
+
+.PHONY: logs-ai
+logs-ai: ## Follow the invoice-ai (FastAPI) logs
+> $(KUBECTL) logs -n $(NAMESPACE) deployment/invoice-ai -f --tail=200
+
+.PHONY: logs-worker
+logs-worker: ## Follow the AMQP extraction worker logs
+> $(KUBECTL) logs -n $(NAMESPACE) deployment/invoice-ai-worker -f --tail=200
+
+.PHONY: logs-queue
+logs-queue: ## Follow the RabbitMQ logs
+> $(KUBECTL) logs -n $(NAMESPACE) statefulset/rabbitmq -f --tail=200
 
 .PHONY: logs-db
 logs-db: ## Follow the Postgres container logs

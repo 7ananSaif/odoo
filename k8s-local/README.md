@@ -14,9 +14,10 @@ No AWS. No EKS. No cost beyond the laptop.
 
 ---
 
-## 0. What runs, and what deliberately does not
+## 0. What runs
 
-**Runs** — the two things this option promises, and nothing else:
+**The whole application, including the AI pipeline.** Every service in
+`docker-compose.yml` that the extraction path needs has an equivalent here:
 
 | Component | Kind | Why |
 |---|---|---|
@@ -24,17 +25,40 @@ No AWS. No EKS. No cost beyond the laptop.
 | `postgres` | StatefulSet + PVC (8Gi) + Service | PostgreSQL 16 with pgvector |
 | `odoo-init` | Job | one-shot `--init=base`, creates the schema |
 | `odoo-filestore` | PVC (10Gi) | `/var/lib/odoo` — attachments |
+| `rabbitmq` | StatefulSet + PVC (1Gi) + Service | job queue for `extract.request` |
+| `redis` | StatefulSet + PVC (1Gi) + Service | LLM cache (AOF on) |
+| `invoice-ai` | Deployment + Service (8100) | FastAPI: OCR → Claude → RAG |
+| `invoice-ai-worker` | Deployment | AMQP consumer that calls Claude |
 
-**Does not run** — the rest of `docker-compose.yml` (Redis, RabbitMQ, and the
-`invoice-ai` / `worker` / `saas-manager` services). Those are separate services
-with their own compose definitions, and pulling them in would double the scope
-of a "run my app locally" exercise. If you want them here, they map 1:1 onto
-`Deployment` + `Service` objects using the same patterns as `07-odoo-deployment.yaml`.
+Wiring, all in the ConfigMap/Secrets so it needs no post-deploy clicking:
 
-Consequence, stated plainly: **the AI extraction pipeline will not work in this
-cluster** — Odoo will run, the UI works, bills can be entered by hand, but the
-"upload → extract" path needs `invoice-ai` + RabbitMQ + Redis. The full stack
-still runs with `docker compose up -d` at the repo root.
+| Setting | Value | Read by |
+|---|---|---|
+| `INVOICE_AI_LLM_SERVICE_URL` | `http://invoice-ai:8100` | Odoo (`llm_service.py`) |
+| `INVOICE_AI_JWT_SECRET` | `odoo-ai` Secret, same value both sides | Odoo + invoice-ai |
+| `INVOICE_AI_JWT_AUDIENCE` | `invoice-ai` | invoice-ai (`/v1/extract` 401s otherwise) |
+| `RABBITMQ_HOST` / `_PORT` | `rabbitmq` / `5672` | Odoo outbox + worker |
+| `REDIS_URL` | `redis://redis:6379/0` | invoice-ai + worker |
+
+**Not run**: `saas-manager-web / -worker / -beat` and `odoo-master` /
+`odoo-control`. Those are multi-tenant control-plane services with their own
+compose profiles, not part of running one instance.
+
+**One placeholder you must fill for real extractions:** `ANTHROPIC_API_KEY` in
+`base/01-secret.yaml` is empty on purpose. With it empty the stack runs,
+`/healthz` answers, the worker consumes, and each extraction returns 503 and is
+queued for retry — a visible failure, not a silent one. Set a real key:
+
+```bash
+kubectl create secret generic odoo-ai -n odoo-local \
+  --from-literal=INVOICE_AI_JWT_SECRET="$(openssl rand -hex 32)" \
+  --from-literal=ANTHROPIC_API_KEY="sk-ant-..." \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl rollout restart deployment/odoo deployment/invoice-ai deployment/invoice-ai-worker -n odoo-local
+```
+
+(Replacing that Secret rotates the JWT secret too — both sides read it from the
+same object, so they can never drift apart.)
 
 ---
 
@@ -134,6 +158,9 @@ empty chart of accounts until you install more apps.
 ```bash
 make k8s-status    # pods, services, PVCs, jobs
 make logs          # follow Odoo
+make logs-ai       # follow invoice-ai (FastAPI)
+make logs-worker   # follow the AMQP extraction worker
+make logs-queue    # follow RabbitMQ
 make logs-db       # follow Postgres
 make logs-init     # the schema-init Job (first-boot debugging)
 make db-shell      # psql inside the Postgres pod

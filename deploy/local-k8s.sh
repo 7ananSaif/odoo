@@ -90,6 +90,7 @@ CLUSTER_NAME="${CLUSTER_NAME:-odoo-local}"
 NAMESPACE="${NAMESPACE:-odoo-local}"
 IMAGE="${IMAGE:-odoo-local:19}"
 BASE_IMAGE="${BASE_IMAGE:-odoo-invoice-agent:local}"
+AI_IMAGE="${AI_IMAGE:-invoice-ai:local}"
 KUBECTL="$(resolve_exe "${KUBECTL:-kubectl}")"
 DOCKER="$(resolve_exe "${DOCKER:-docker}")"
 KIND="$(resolve_exe "${KIND:-kind}")"
@@ -209,6 +210,17 @@ build_image() {
   in_repo "$DOCKER" build -f k8s-local/Dockerfile.app -t "$IMAGE" \
     --build-arg "BASE_IMAGE=${BASE_IMAGE}" .
   ok "image ready: ${IMAGE}"
+
+  # The AI service and its worker share one image (docker-compose.yml builds
+  # ./invoice-ai for both). Without it there is no extraction service to call
+  # and the outbox has nothing to deliver to.
+  if ! $DOCKER image inspect "$AI_IMAGE" >/dev/null 2>&1 || [ "${REBUILD_AI:-0}" = "1" ]; then
+    say "building ${AI_IMAGE} from ./invoice-ai"
+    in_repo "$DOCKER" build -t "$AI_IMAGE" invoice-ai
+  else
+    ok "ai image ${AI_IMAGE} already present (rebuild: REBUILD_AI=1)"
+  fi
+  ok "ai image ready: ${AI_IMAGE}"
 }
 
 load_image() {
@@ -218,9 +230,11 @@ load_image() {
   case "$CLUSTER" in
     kind)
       require "$KIND" "image load"
-      say "loading ${IMAGE} into kind node(s)"
+      # Both images: the app and the AI service/worker share a node.
+      say "loading ${IMAGE} and ${AI_IMAGE} into kind node(s)"
       $KIND load docker-image "$IMAGE" --name "$CLUSTER_NAME"
-      ok "image loaded into kind"
+      $KIND load docker-image "$AI_IMAGE" --name "$CLUSTER_NAME"
+      ok "images loaded into kind"
       ;;
     *)
       ok "cluster shares the local image store (no load needed)"
@@ -353,6 +367,21 @@ cmd_logs() {
   $KUBECTL logs -n "$NAMESPACE" deployment/odoo -f --tail=200
 }
 
+cmd_logs_ai() {
+  require "$KUBECTL" "logs-ai"
+  $KUBECTL logs -n "$NAMESPACE" deployment/invoice-ai -f --tail=200
+}
+
+cmd_logs_worker() {
+  require "$KUBECTL" "logs-worker"
+  $KUBECTL logs -n "$NAMESPACE" deployment/invoice-ai-worker -f --tail=200
+}
+
+cmd_logs_queue() {
+  require "$KUBECTL" "logs-queue"
+  $KUBECTL logs -n "$NAMESPACE" statefulset/rabbitmq -f --tail=200
+}
+
 cmd_url() {
   case "$CLUSTER" in
     kind)
@@ -378,6 +407,9 @@ case "${1:-help}" in
   db-shell)  cmd_db_shell ;;
   db-backup) cmd_db_backup ;;
   logs)      cmd_logs ;;
+  logs-ai)     cmd_logs_ai ;;
+  logs-worker) cmd_logs_worker ;;
+  logs-queue)  cmd_logs_queue ;;
   url)       cmd_url ;;
   help|-h|--help) cmd_help ;;
   *)         die "unknown command '$1' (try: bash deploy/local-k8s.sh help)" ;;
